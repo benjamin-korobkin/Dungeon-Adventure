@@ -1,2 +1,2 @@
 # Zork-beta-
-My pending version of Zork
+A text-based dungeon adventure game, currently in development
