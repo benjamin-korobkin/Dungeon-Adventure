@@ -1,4 +1,4 @@
-# Dungeon-Adventure-
+# Dungeon-Adventure
 A text-based dungeon adventure game, currently in development.
 
 Commands are entered as a sequence of 1-2 words (3 word entries coming soon)
