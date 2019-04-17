@@ -14,7 +14,7 @@ package realzork;
 public class Messages {
     // The message printed at the start
     public String welcome, quit, win, gotItem, 
-                    doorStatus, nullPath, charStatus, blindLock;
+                    doorStatus, nullPath, charStatus, blindLock, badInput, help;
     
  
     public Messages() {
@@ -24,7 +24,8 @@ public class Messages {
                 + " behind you crumbles\nand covers the entrance, trapping you "
                 + "in complete darkness!\nYou must find the scroll and escape!"
                 + "\n[Type 'help' to see commands]\n");
-        
+        help = "You must retrieve the scroll and escape!\n" 
+                + "Your commands are: ";
         quit = "LOL! git gud noob.";
         win = "Congratulations! You Win!!!";
         blindLock = ("You blindly attempt to go north, but"
@@ -32,5 +33,7 @@ public class Messages {
                             + "\nfor the handle and fidget with it"
                             + "\nuntil you realize it's locked."
                             + "\nGuess you're not going that way.");
+        
+        badInput = "I don't understand. Try using one of your command words.";
     }
 }

@@ -5,21 +5,39 @@
  */
 package realzork;
 
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 class Parser 
 {
-
-    private CommandWords commands;  // holds all valid command words
-
+    
+    public final ArrayList<String> ALL_COMMANDS;  // holds all valid command words
+    //public ArrayList<String> commands;
+    
     public Parser()
     {
-        commands = new CommandWords();
+        this.ALL_COMMANDS = new ArrayList<>
+        //this.commands = new ArrayList<>
+          (Arrays.asList("go", "look", "take", "drop", "back", 
+                  "help", "inv", "quit"));
+                                  
     }
 
+    public void showCommands() 
+    { 
+        /**for(int i = 0; i < ALL_COMMANDS.length;i++)
+        {
+        System.out.print(ALL_COMMANDS[i] + " ");
+        }**/
+        ALL_COMMANDS.forEach((str) -> {
+            System.out.print(str + " ");
+        });
+        System.out.println();
+    }
+    
     public Command getCommand() 
     {
         String inputLine = "";   // will hold the full input line
@@ -42,15 +60,15 @@ class Parser
         StringTokenizer tokenizer = new StringTokenizer(inputLine);
 
         if(tokenizer.hasMoreTokens())
-            word1 = tokenizer.nextToken();      // get first word
+            word1 = tokenizer.nextToken().toLowerCase();      // get first word
         else
             word1 = null;
         if(tokenizer.hasMoreTokens())
-            word2 = tokenizer.nextToken();      // get second word
+            word2 = tokenizer.nextToken().toLowerCase();      // get second word
         else
             word2 = null;
         if(tokenizer.hasMoreTokens())
-            word3 = tokenizer.nextToken();      // get third word
+            word3 = tokenizer.nextToken().toLowerCase();      // get third word
         else
             word3 = null;
 
@@ -58,8 +76,8 @@ class Parser
         // Now check whether this word is known. If so, create a command
         // with it. If not, create a "nil" command (for unknown command).
 
-        if(!word1.equals(null))
-            return new Command(word1, word2, word3);
+        if(ALL_COMMANDS.contains(word1))/*
+            */return new Command(word1, word2, word3);
         else
             return new Command(null, word2, word3);
     }
@@ -67,8 +85,4 @@ class Parser
     /**
      * Print out a list of valid command words.
      */
-    public void showCommands()
-    {
-        commands.showCommands();
-    }
 }

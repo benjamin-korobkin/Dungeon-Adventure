@@ -56,6 +56,7 @@ class Command
      */
     public boolean isUnknown()
     {
+        //System.out.println("I don't know what you mean...");
         return (commandWord == null);
     }
 

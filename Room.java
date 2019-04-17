@@ -13,7 +13,7 @@ import java.util.Iterator;
 
 class Room 
 {
-    private String description, specDesc, blindLook;
+    public String description, specDesc, blindLook;
     private HashMap exits;        // stores exits of this room.
     public ArrayList<Item> items;
     public boolean locked;
@@ -54,7 +54,7 @@ class Room
             items.add(item);
         }
     } 
-    
+    // Used to check if item exists in room
     public Item roomItem(String item)
     {
         ArrayList<Item> roomItems = items;
@@ -70,6 +70,10 @@ class Room
     
     public void removeItem(Item i) {
         items.remove(i);
+    }
+    
+    public void addItem(Item i) {
+        items.add(i);
     }
 
     /**
