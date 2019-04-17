@@ -1,11 +1,11 @@
 # Dungeon-Adventure
-A text-based dungeon adventure game, currently in development.\
+A text-based dungeon adventure game, currently in development.
 
-Commands are entered as a sequence of 1-2 words (3 word entries coming soon)\
+Commands are entered as a sequence of 1-2 words (3 word entries coming soon)
 
-Commands: go, look, take, back, help, quit\
+Commands: go, look, take, back, help, quit
 
-Grammar:\ 
+Grammar:   
 [] - denotes mandatory field\
 () - denotes optional field\
 | - denotes binary option\
