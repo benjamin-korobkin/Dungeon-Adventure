@@ -7,13 +7,15 @@ package realzork;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 class Room 
 {
-    public String description, specDesc, blindLook;
+    public String name, description, specDesc, blindLook;
     private HashMap exits;        // stores exits of this room.
     public ArrayList<Item> items;
     public boolean locked;
@@ -22,13 +24,27 @@ class Room
      * Create a room described "description". At first, it has no exits.
      * "description" is something like "a kitchen" or "an open court yard".
      */
-    public Room(String description, boolean locked) 
+    public Room(String description, boolean locked, String name) 
     {
         this.description = description;
+        this.specDesc = "Nothing interesting here.";
+        this.name = name;
         exits = new HashMap();
-        items = new ArrayList<Item>();
+        items = new ArrayList<>();
         blindLook = "It's pitch black. You can't see a thing!";
         this.locked = locked;
+    }
+    
+    public Room (String description, String name)
+    {
+        this(description, false, "");
+        this.name = name;
+    }
+    
+    public Room(String name)
+    {
+        this("a room within the sanctum", false, "");
+        this.name = name;
     }
 
     /**
@@ -46,15 +62,23 @@ class Room
         if(west != null)
             exits.put("west", west);
     }
-
-    public void setItems(Item ... i)
+    
+    // Method to return set of adjacent rooms. Helps to know if monster is near.
+    public Set exitRooms()
     {
-        for (Item item : i)
-        {
-            items.add(item);
-        }
+        Set<Room> exitRooms = new HashSet<>();
+        if (exits.get("north") != null) exitRooms.add((Room) exits.get("north"));
+        if (exits.get("east") != null) exitRooms.add((Room) exits.get("east"));
+        if (exits.get("south") != null) exitRooms.add((Room) exits.get("south"));
+        if (exits.get("west") != null) exitRooms.add((Room) exits.get("west"));
+        return exitRooms;
+    }
+    
+    public void setItems(Item ... i) // should use addItem instead
+    {
+        items.addAll(Arrays.asList(i));
     } 
-    // Used to check if item exists in room
+    // Used to check if item exists in room. Should use hasItem(Item i) instead
     public Item roomItem(String item)
     {
         ArrayList<Item> roomItems = items;
@@ -74,6 +98,11 @@ class Room
     
     public void addItem(Item i) {
         items.add(i);
+    }
+    
+    // Check if the room has the specified item
+    public boolean hasItem(Item i) {
+        return items.contains(i);
     }
 
     /**
@@ -129,10 +158,9 @@ class Room
     public String blindLook() {
         return blindLook;
     }
-    /*public void setBlindDesc(String s) {
-        blindLook = s;
-    }
-   */
   
-    
+    @Override
+    public String toString(){
+        return name;
+    }
 }

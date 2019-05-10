@@ -10,23 +10,19 @@ public class Character {
     // may become a HashMap, we'll see.
     public ArrayList<Item> items;
     //public Room room;
-    public int storage;
+    //public int storage;
+    //private int coins;
     
-    public Character(Room r, int s) {
+    public Character(Room r) {
         items = new ArrayList<>();
+        //coins = 0;
         //room = r;
-        storage = s;
+        //storage = s;        
     }
     
     public void addItem(Item i) {
         items.add(i);
-        System.out.println("The " + i.getName() + " was added to your inventory.");
-        
-        if (i.getName().equals("torch")) {
-            System.out.println("The ember of light brightens your way!\n"
-                    + "You can see clearly now!");            
-        }
-        
+        System.out.println("The " + i.getName() + " was added to your inventory.");        
     }
     
     public void removeItem(Item i) {
@@ -37,7 +33,7 @@ public class Character {
         return items.contains(i);
     }
     
-    public int itemsWeight() {
+   /* public int itemsWeight() {
         int weight = 0;
         for (Item i : items)
         {
@@ -45,6 +41,7 @@ public class Character {
         }
         return weight;
     }
+    */
     
     public Item plyrItem(String item) {
         //ArrayList<Item> plyrItems = items;

@@ -15,15 +15,17 @@ class Parser
 {
     
     public final ArrayList<String> ALL_COMMANDS;  // holds all valid command words
-    //public ArrayList<String> commands;
+    public final ArrayList<String> DIRECTIONS;
     
     public Parser()
     {
         this.ALL_COMMANDS = new ArrayList<>
         //this.commands = new ArrayList<>
-          (Arrays.asList("go", "look", "take", "drop", "back", 
-                  "help", "inv", "quit"));
+          (Arrays.asList("go", "look", "take", "back", 
+                  "help", "quit"));
                                   
+        this.DIRECTIONS = new ArrayList<>(Arrays.asList
+        ("north", "east", "south", "west"));
     }
 
     public void showCommands() 
@@ -76,7 +78,7 @@ class Parser
         // Now check whether this word is known. If so, create a command
         // with it. If not, create a "nil" command (for unknown command).
 
-        if(ALL_COMMANDS.contains(word1))/*
+        if(DIRECTIONS.contains(word1) || ALL_COMMANDS.contains(word1))/*
             */return new Command(word1, word2, word3);
         else
             return new Command(null, word2, word3);
