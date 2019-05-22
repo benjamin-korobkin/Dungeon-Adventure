@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 class Room 
 {
+    // I think I gave Room names for debugging purposes
     public String name, description, specDesc, blindLook;
     private HashMap exits;        // stores exits of this room.
     public ArrayList<Item> items;

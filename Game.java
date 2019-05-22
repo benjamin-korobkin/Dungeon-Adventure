@@ -5,15 +5,18 @@ import java.util.*;
 
 class Game {
     PrintStream out = System.out;
-    private final Parser parser;
-    private int coins = 0;
-    private Room currentRoom, prevRoom;
+    Scanner in = new Scanner(System.in);
+    //private final Parser parser;
+    private int coinGoal, coins = 0;
+    private Room plyrRoom, prevRoom, monstRoom;
     private Room entrance, torchRoom, keyRoom, west0, boulderRoom, firstG,
             north0, east0, creeperRoom, shieldRoom;
-    private Room sanct0, sanct1, sanct2, sanct3, sanct4, sanct5, sanct6, sanct7, sanct8;
+    private Room sanct0, sanct1, sanct2, sanct3, sanct4, sanct5, sanct6, 
+            sanct7, sanct8;
     private Item torch, key, gold, shield; //satchel
-    private final Character player;
+    private final Character PLAYER;
     private final Messages msg;
+    private Character monster;
     boolean moved = false;
     boolean won = false;
     List<Room> sanctRooms = new ArrayList<>();
@@ -25,15 +28,22 @@ class Game {
      */
     public Game() {
         createRooms();
+        coinGoal = 4;
         createItems();
-        parser = new Parser();
-        player = new Character(entrance);
-        // For debugging, we grant 
-        player.addItem(torch);
+        disperseGold(coinGoal); // scatter coins around sanctum
+        PLAYER = new Character(entrance); // start PLAYER at entrance
+        plyrRoom = PLAYER.room;
+        prevRoom = PLAYER.prevRoom;
+        //parser = new Parser();
+        createMonster();
+        msg = new Messages();
+        
+      //For debugging, we grant 
+        PLAYER.addItem(torch);
         boulderRoom.unlock();
-        currentRoom = boulderRoom;
-        prevRoom = null;
-        msg = new Messages();        
+        creeperRoom.unlock();
+        plyrRoom = creeperRoom;
+        
     }
 
     /**
@@ -53,7 +63,7 @@ class Game {
         east0 = new Room("a room with puddles of water all around.", "East0");
         creeperRoom = new Room("an open space with a strange aura.", true, "Creeper Room");
         shieldRoom = new Room("an empty room save for some hooks on the wall.", "Shield Room");
-        sanct0 = new Room("the entrance to the sanctum", true, "Sanct0");
+        sanct0 = new Room("the entrance to the sanctum.", true, "Sanct0");
         sanct1 = new Room("Sanct1");
         sanct2 = new Room("Sanct2");
         sanct3 = new Room("Sanct3");
@@ -100,24 +110,7 @@ class Game {
                 + "the other side.\nIs someone there?");
         creeperRoom.setSpecDesc("The figure from before is nowhere to be seen.");
         shieldRoom.setSpecDesc("A wooden shield hangs on one of the hooks.");
-        sanct0.setSpecDesc("You need to find the coins!"); 
-    }
-    
-    private void createItems() {
-        torch = new Item("torch", "Its bright light shines up the room.");
-        key = new Item("key", "Looks pretty rusted. Hopefully it still works.");
-        gold = new Item("gold", "Ooooohhh, shiny!!!");
-        shield = new Item("shield", "It hasn't aged very well, but looks strong"
-                + "\nenough to provide a bit of protection.");
-        /*satchel = new Item("satchel", 0, "A brown, leather bag with a shoulder"
-                + "strap for easy portability."); */
-        // Put items in rooms
-        torchRoom.addItem(torch);
-        keyRoom.addItem(key);
-        firstG.addItem(gold);
-        shieldRoom.addItem(shield);
-        //sanct3.addItem(gold);
-        //sanct8.addItem(gold);
+        sanct0.setSpecDesc("You need to find the coins.");
         //Fill the sanctum arraylist with rooms
         sanctRooms.add(0, sanct0);
         sanctRooms.add(1, sanct1);
@@ -128,29 +121,61 @@ class Game {
         sanctRooms.add(6, sanct6);
         sanctRooms.add(7, sanct7);
         sanctRooms.add(8, sanct8);
-        //Add gold to random rooms (4-8). Be sure the rooms are unique via set.
-        Set<Integer> randIntSet = new HashSet<>();
-        while (randIntSet.size() < 3) // make sure we get three unique ints.
-        {
-            int randInt = rng.nextInt(5) + 4; // keep in range [4-8]
-            randIntSet.add(randInt);
-        }
         
-        for (Integer i : randIntSet)
+    }
+    
+    private void createItems() {
+        torch = new Item("torch", "Its bright light shines up the room.");
+        key = new Item("key", "Looks pretty rusted. Hopefully it still works.");
+        gold = new Item("gold", "Ooooohhh, shiny!!!");
+        shield = new Item("shield", "It hasn't aged very well, but looks strong"
+                + "\nenough to provide a bit of protection.");
+        // Put items in rooms
+        torchRoom.addItem(torch);
+        keyRoom.addItem(key);
+        firstG.addItem(gold);
+        shieldRoom.addItem(shield);
+    }
+    
+    private void createMonster() {
+        monster = new Character(sanct0); // at start, place monster at entrance.
+        monstRoom = monster.room;
+        moveMonster(); // move monster inside random sanctRoom (not sanct0-3)
+        // We'll have to experiment to see if we want this at the beginning
+        // or end of the room description. For now, at the end.
+    }
+    
+    // TODO: rework the system so only rooms without coins will get a new one
+    private void disperseGold(int coinsMissing) {
+        //Add gold to random rooms (3-8). Be sure the rooms are unique via set.
+        //Set<Integer> randIntSet = new HashSet<>();
+        // make sure we get three unique ints...
+        while (coinsMissing > 0) 
+        {   // keep in range [1-8]. no coin at sanct0
+            int randInt = rng.nextInt(8) + 1; 
+            Room r = sanctRooms.get(randInt);
+            if (!r.hasItem(gold)){
+                r.addItem(gold);
+                coinsMissing--;
+            }
+        }
+        // Now, no sanctum room has more than 1 coin.
+        // Change description of rooms with gold.
+        for(Room r: sanctRooms) {
+          if(r.hasItem(gold)) 
+              r.setSpecDesc("You see a piece of gold on the floor.");
+        } 
+      /*  // ... and place the gold in the rooms corresponding to the randInts
+        for (Integer i : randIntSet) 
         {
             Room r = sanctRooms.get(i);
             r.addItem(gold);
-            //out.println(r.toString());
-        } // Now, no sanctum has more than 1 coin.
+            out.println(r.toString());
+        } 
+        */
         
-        for(Room r: sanctRooms){
-          if(r.hasItem(gold))
-          {
-              //out.println("has gold");
-              r.setSpecDesc("You see a piece of gold on the floor");
-          }
-        }
     }
+    
     /**
      *  Main play routine.  Loops until end of play.
      */
@@ -160,70 +185,81 @@ class Game {
         // execute them until the game is over.
         boolean finished = false;
         while (!finished) {
-            Command command = parser.getCommand();
-            finished = processCommand(command);
-            if (finished) out.println(msg.win);
+            //Command command = parser.getCommand();
+            out.print("> ");
+            String fullCommand = in.nextLine();
+            fullCommand = fullCommand.toLowerCase();
+            String[] commands = fullCommand.split(" ");
+            finished = processCommand(commands);
         }
         //out.println("GG");
     }
 
      /**
-     * Print out the opening message for the player.
+     * Print out the opening message for the PLAYER.
      * /
     /**
      * Given a command, process (that is: execute) the command.
      * If this command ends the game, true is returned, otherwise false is
      * returned.
      */
-    private boolean processCommand(Command command) 
+    private boolean processCommand(String[] commands)
+                                   //Command
+// change to accept strings instead of dumb 'commands'
     {
-        if(command.isUnknown()) {
+       /* if(command.isUnknown()) {
             out.println(msg.badInput);
             return false;
-        } else {
-            String commandWord = command.getCommandWord();
-            switch (commandWord) {
+        } else { 
+        */ 
+       {
+           //commands = commands.();
+           String commandWords = commands[0];
+            switch (commandWords) {
                 case "help":
                     printHelp();
                     break;
                 case "go":
-                    goRoom(command);
+                    if (commands.length > 1)
+                    return goDir(commands[1]);
+                    else out.println("Go where?");
                     break;
                 case "north":
-                    goDir("north");
-                    break;
+                    return goDir("north");
+                    //break;
                 case "east":
-                    goDir("east");
-                    break;
+                   return goDir("east");
+                    //break;
                 case "south":
-                    goDir("south");
-                    break;
+                   return goDir("south");
+                   // break;
                 case "west":
-                    goDir("west");
-                    break;
+                   return goDir("west");
+                   // break;
                 case "coins":
                     out.println("Gold coins: " + coins);
                     break;
                 case "look":
-                    look(command);
+                    look(commands);
                     break;
                 case "take":
-                    if (take(command)) return true;
+                    if (take(commands)) return true;
                     break;
                 case "gimmetorch":
-                    player.addItem(torch);
+                    PLAYER.addItem(torch);
                     break;
                 case "back":
                     back(prevRoom);
                     break;
                 case "quit":
-                    if(command.hasSecondWord())
+                    if(commands.length > 1)
                         out.println("If you want to quit, just type 'quit'.");
                     else
                         return true;  // signal that we want to quit
                     break;
                 default:
-                    break;
+                    out.println(msg.badInput);
+                    return false;
                     /* case "drop":
                     //drop(command);
                     break;
@@ -243,83 +279,44 @@ class Game {
     private void printHelp() 
     {
         out.println(msg.help);
-        parser.showCommands();
-        out.println(currentRoom.exitString());
+        //parser.showCommands();
+        out.println(plyrRoom.exitString());
     }
 
     /** 
      * Try to go to one direction. If there is an exit, enter the new
      * room, otherwise print an error message.
      */
-    private void goDir(String direction)
+    private boolean goDir(String direction)
     {
-        Room nextRoom = currentRoom.nextRoom(direction);
-        
-            if (nextRoom == null)
-                out.println("You can't go that way!");
+        Room nextRoom = plyrRoom.nextRoom(direction);
+            if (direction == null) out.println("Go where?");
+            else if (direction.equals("back")) back(prevRoom);
+            else if (nextRoom == null)
+                out.println("You can only go to your exits.");
             else {
-                if (nextRoom.locked && !player.hasItem(torch)) {
+                if (nextRoom.locked && !PLAYER.hasItem(torch)) {
                     out.println(msg.blindLock);
                 }
                 else if (nextRoom.locked) 
                     out.println("You attempt to go " + direction + 
                             " but the way is blocked.");
                 else {
-                    prevRoom = currentRoom;
-                    currentRoom = nextRoom;
-                    if (currentRoom.equals(boulderRoom) && 
+                    prevRoom = plyrRoom;
+                    plyrRoom = nextRoom;
+                    if (plyrRoom.equals(boulderRoom) && 
                             prevRoom.equals(entrance))
                     {
                         out.println(msg.unlockDoor);
-                        player.removeItem(key);
+                        PLAYER.removeItem(key);
                     }
-                    checkTorch();
                     
+                    if (plyrRoom.equals(monstRoom)) return faceMonster();
+                    checkTorch();
+                    checkMonster();
                 }   
             }
-    }
-    
-    private void goRoom(Command command) 
-    {        
-        if(!command.hasSecondWord())
-        {
-            // if there is no second word, we don't know where to go...
-            out.println("Go where?");
-            //return;
-        }
-        else if (command.getSecondWord().equals("back")) {
-            back(prevRoom);
-        }
-        else {
-        
-           String direction = command.getSecondWord();
-            
-            // Try to leave current room.
-            Room nextRoom = currentRoom.nextRoom(direction);
-        
-            if (nextRoom == null)
-                out.println("You can't go that way!");
-            else {
-                if (nextRoom.locked && !player.hasItem(torch)) {
-                    out.println(msg.blindLock);
-                }
-                else if (nextRoom.locked) 
-                    out.println("You attempt to go " + direction + 
-                            " but the way is blocked.");
-                else {
-                    prevRoom = currentRoom;
-                    currentRoom = nextRoom;
-                    if (currentRoom.equals(boulderRoom) && 
-                            prevRoom.equals(entrance))
-                    {
-                        out.println(msg.unlockDoor);
-                        player.removeItem(key);
-                    }
-                    checkTorch();
-                    
-                }   
-            }
-        }
+            return false;
     }
     
     private void back(Room previous) {
@@ -328,37 +325,39 @@ class Game {
         }
         else {
             out.print("You head back to the previous room.\n");
-            prevRoom = currentRoom;
-            currentRoom = previous;
-            if (!player.hasItem(torch) && !currentRoom.equals(torchRoom)) {
-                out.println(currentRoom.blindDesc());
+            prevRoom = plyrRoom;
+            plyrRoom = previous;
+            if (!PLAYER.hasItem(torch) && !plyrRoom.equals(torchRoom)) {
+                out.println(plyrRoom.blindDesc());
             }
             else {
-                out.println(currentRoom.description());
+                out.println(plyrRoom.description());
             }
         }
     }
 
-    private void look(Command command) {
-        if(!command.hasSecondWord() || command.getSecondWord().equals("room")) {
-            // just "look" or "look room"? So look at the room.
-            if (!player.hasItem(torch) && !currentRoom.equals(torchRoom)) {
-               out.println(currentRoom.blindLook());
+    //private void look(Command command) {
+    private void look (String[] command) {
+        if((command.length < 2) || command[1].equals("room")) {
+            // just "look" or "look room"? So try to look at the room.
+            if (!PLAYER.hasItem(torch) && !plyrRoom.equals(torchRoom)) {
+               out.println(plyrRoom.blindLook());
                return;
             }
             else { 
-            out.println(currentRoom.description());
+            out.println(plyrRoom.description());
             return;
             }
         }
-        if (!player.hasItem(torch) && !currentRoom.equals(torchRoom)) {
-            out.println("How can you look at something you can't see?");
+        if (!PLAYER.hasItem(torch) && !plyrRoom.equals(torchRoom)) {
+            out.println(plyrRoom.blindLook());
+            //out.println("How can you look at something you can't see?");
         }
         else {
-            String item = command.getSecondWord();
+            String item = command[1];
             // If the item is in the room, return its description.
-            Item roomItem = currentRoom.roomItem(item);
-            Item plyrItem = player.plyrItem(item);
+            Item roomItem = plyrRoom.roomItem(item);
+            Item plyrItem = PLAYER.plyrItem(item);
             boolean found = (roomItem != null || plyrItem != null);
             if (found) {
                 if (plyrItem == null) {
@@ -369,53 +368,44 @@ class Game {
                 }
             } 
             else {
-                out.println("Please stop trying to look at the " 
-                        + command.getSecondWord()+ "..."); 
+                out.println("Trust me, you don't need to look at that."); 
+                       // + command[1] + "..."); 
             }
         }
     }
 
-    private boolean take(Command command) {
-        if(!command.hasSecondWord()) {
+    private boolean take(String[] command) {
+        if(command.length < 2) {
             // if there is no second word, we don't know what to take...
             out.println("Take what?");
             return false;
         }
         // if there's no torch around, you can't take anything.
-        if (!player.hasItem(torch) && !currentRoom.equals(torchRoom)) {
+        if (!PLAYER.hasItem(torch) && !plyrRoom.equals(torchRoom)) {
             out.println("How do you take something you can't see?");
         }
         // otherwise, attempt to take the specified item.
         else {
             // If the item is in the room, try to add it to your inventory.
             boolean exists = false; Item item = null;
-            for (Item i : currentRoom.items) {
-                if (i.getName().equals(command.getSecondWord())) 
+            for (Item i : plyrRoom.items) {
+                if (i.getName().equals(command[1])) 
                     {exists = true; item = i;}
             }
             if (exists) {
-                currentRoom.removeItem(item);
-                player.addItem(item);
+                plyrRoom.removeItem(item);
+                PLAYER.addItem(item);
                 // if you get the torch, room descriptions change
                 if(item.getName().equals("torch")) gotTorch();
                 // if you get a key, a door unlocks
                 if(item.getName().equals("key")) gotKey();
                 if(item.getName().equals("gold")) return gotGold();
                 if(item.getName().equals("shield")) gotShield();
-                // if you get the satchel, your storage expands.
-                /*if(item.getName().equals("satchel")) {
-                    gotSatchel(); player.removeItem(item); }   
-                 {
-                    out.println("You don't have enough space to take that!\n"
-                             + "[type 'inv' to see storage capacity]");
-                } */
             }
-            else{out.println("Leave the " + command.getSecondWord() + " alone.");}
+            else{out.println("Leave the " + command[1] + " alone.");}
         }
         return false;
     }
-
-   
     
     private void gotTorch() {
        //hasItem(torch);
@@ -431,21 +421,22 @@ class Game {
 
     private void gotKey() { 
         boulderRoom.unlock(); 
-        keyRoom.setSpecDesc("Nothing left here. It's just empty space. "
+        keyRoom.setSpecDesc("Nothing left here. It's just empty space."
                 + "\nYou can chill here for a while if you want.");
     }
     
     private void checkTorch() {
-        if (player.hasItem(torch) || currentRoom.equals(torchRoom)) {
-            out.println(currentRoom.description());
+        if (PLAYER.hasItem(torch) || plyrRoom.equals(torchRoom)) {
+            out.println(plyrRoom.description());
         }
         else {
-            out.println(currentRoom.blindDesc());
+            out.println(plyrRoom.blindDesc());
         }    
     }  
     
     private boolean gotGold() {
-        if (currentRoom.equals(firstG)) {
+        coins++;
+        if (plyrRoom.equals(firstG)) {
             out.println("You hear something crash in another room.\n"
                     + "What was that?");
             firstG.setSpecDesc("Should probably investigate what that "
@@ -455,10 +446,13 @@ class Game {
                 + "mysteriously disappeared.");
         }
         else {
-            coins++;
-            if (coins==3) return true;
-            out.println("You need " + (3-coins) + " more.");
-            currentRoom.setSpecDesc("Nothing interesting here.");
+            if (coins >= coinGoal)
+            {
+                out.println(msg.win);
+                return true;
+            }
+            out.println("You need " + (coinGoal - coins) + " more.");
+            plyrRoom.setSpecDesc("Nothing interesting here.");
         }
         return false;
     }
@@ -466,17 +460,75 @@ class Game {
     private void gotShield() {
         //sanct0.unlock();
         out.println(msg.goblin);
-        currentRoom = sanct0;
+        plyrRoom = sanct0;
         prevRoom = null;
         msg.help1();
-        sanct0.locked=false;
+        sanct0.unlock();
+        out.println(plyrRoom.description());
+    }
+
+    private boolean faceMonster() {
+        out.println(msg.monsterEncounter);
+        boolean blocked = false;
+        if (PLAYER.hasItem(shield))
+        {
+           int blockChance = rng.nextInt(50); 
+           if (blockChance >= 25) blocked = true;
+           
+           if (blocked) {
+            out.println(msg.shieldBlock);
+            moveMonster();
+            return false;
+            }
+            else {
+                out.println(msg.shieldMiss);
+                if (coins > 0)
+                {
+                    out.println(msg.missWithCoin);
+                    coins = 0;
+                    moveMonster();
+                    return false;
+                }
+                else {
+                    out.println(msg.missWithoutCoin);
+                    return true;
+                }
+            }
+        }
+        else {
+            out.println(msg.noDefense);
+            return true;
+        }
+    }
+    
+    public void moveMonster() {
+        //TODO: change the spec desc of the adjacent rooms to remove the
+        // monster thumping. (in progress)
+        // place monster in a different room that is not the current room
+        // and also not adjacent.
+        Set<Room> exitRooms = monstRoom.exitRooms(); 
+        // at game start, exit rooms are for sanct0
+        Room randRoom = entrance; //placeholder
+        do {
+            int randInt = rng.nextInt(9);
+            randRoom = sanctRooms.get(randInt);
+        } while (exitRooms.contains(randRoom) || monstRoom.equals(randRoom));
+        monstRoom = randRoom; 
+    }
+
+    private void checkMonster() {
+        Set<Room> exitRooms = plyrRoom.exitRooms();
+        if (exitRooms.contains(monstRoom))
+        {
+            out.println(msg.monsterNear);
+        }
     }
 }
    /* private void inv() {
-        int itemAmt = player.items.size();
+        int itemAmt = PLAYER.items.size();
         
         String inv = "Inventory: ";
-        for(Item i : player.items)
+        for(Item i : PLAYER.items)
         {
             inv += i.getName() + "(" + i.getWeight() + "), ";
         }
@@ -488,11 +540,11 @@ class Game {
         {
             out.println(inv.substring(0, inv.length()-2));
         }
-        out.println("Storage used: " + player.itemsWeight()+"/"+player.storage);
+        out.println("Storage used: " + PLAYER.itemsWeight()+"/"+PLAYER.storage);
     } */
 
 /*    private void gotSatchel() {
-        player.storage += 5;
+        PLAYER.storage += 5;
         satchelRoom.setSpecDesc("Looks like a great place to hang a satchel!\n"
                 + "Wait...");
         out.println("Your storage capacity has been increased by 5!");
@@ -505,7 +557,7 @@ class Game {
         else
         {
             boolean exists = false; Item item = null;
-            for (Item i : player.items) {
+            for (Item i : PLAYER.items) {
                 if (i.getName().equals(command.getSecondWord())) 
                     {exists = true; item = i;}
             }
@@ -525,9 +577,50 @@ class Game {
             // Drop it
             else {
                 //String itemName = item.getName();
-                player.removeItem(item);
-                currentRoom.addItem(item);
+                PLAYER.removeItem(item);
+                plyrRoom.addItem(item);
             }
             out.println();         
         }
     } */
+
+/* private void goRoom(Command command) 
+    {        
+        if(!command.hasSecondWord())
+        {
+            // if there is no second word, we don't know where to go...
+            out.println("Go where?");
+            //return;
+        }
+        else if (command.getSecondWord().equals("back")) {
+            back(prevRoom);
+        }
+        else {
+           String direction = command.getSecondWord();
+            // Try to leave current room.
+            Room nextRoom = plyrRoom.nextRoom(direction);
+            if (nextRoom == null)
+                out.println("You can't go that way!");
+            else {
+                if (nextRoom.locked && !PLAYER.hasItem(torch)) {
+                    out.println(msg.blindLock);
+                }
+                else if (nextRoom.locked) 
+                    out.println("You attempt to go " + direction + 
+                            " but the way is blocked.");
+                else {
+                    prevRoom = plyrRoom;
+                    plyrRoom = nextRoom;
+                    if (plyrRoom.equals(boulderRoom) && 
+                            prevRoom.equals(entrance))
+                    {
+                        out.println(msg.unlockDoor);
+                        PLAYER.removeItem(key);
+                    }
+                    //checkTorch();
+                    if (sanctRooms.contains(plyrRoom)) checkMonster();
+                    else checkTorch();
+                }   
+            }
+        }
+    }*/

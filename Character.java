@@ -9,14 +9,16 @@ import java.util.*;
 public class Character {
     // may become a HashMap, we'll see.
     public ArrayList<Item> items;
+    public Room room, prevRoom;
     //public Room room;
     //public int storage;
     //private int coins;
     
     public Character(Room r) {
         items = new ArrayList<>();
+        this.room = r;
+        prevRoom = null;
         //coins = 0;
-        //room = r;
         //storage = s;        
     }
     
