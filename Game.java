@@ -39,10 +39,10 @@ class Game {
         msg = new Messages();
         
       //For debugging, we grant 
-        PLAYER.addItem(torch);
-        boulderRoom.unlock();
-        creeperRoom.unlock();
-        plyrRoom = creeperRoom;
+      //PLAYER.addItem(torch);
+      //boulderRoom.unlock();
+      //creeperRoom.unlock();
+      //plyrRoom = creeperRoom;
         
     }
 
@@ -204,18 +204,14 @@ class Game {
      * returned.
      */
     private boolean processCommand(String[] commands)
-                                   //Command
-// change to accept strings instead of dumb 'commands'
     {
-       /* if(command.isUnknown()) {
-            out.println(msg.badInput);
+        if(commands.length > 2) {
+            out.println("Commands may only be 1 or 2 words.");
             return false;
-        } else { 
-        */ 
+        }
        {
-           //commands = commands.();
-           String commandWords = commands[0];
-            switch (commandWords) {
+           String commandWord = commands[0];
+            switch (commandWord) {
                 case "help":
                     printHelp();
                     break;
@@ -237,7 +233,7 @@ class Game {
                    return goDir("west");
                    // break;
                 case "coins":
-                    out.println("Gold coins: " + coins);
+                    out.println("Gold coins: " + coins + "/" + coinGoal);
                     break;
                 case "look":
                     look(commands);
@@ -247,6 +243,7 @@ class Game {
                     break;
                 case "gimmetorch":
                     PLAYER.addItem(torch);
+                    gotTorch();
                     break;
                 case "back":
                     back(prevRoom);
@@ -459,7 +456,7 @@ class Game {
 
     private void gotShield() {
         //sanct0.unlock();
-        out.println(msg.goblin);
+        out.println(msg.goblin(coinGoal));
         plyrRoom = sanct0;
         prevRoom = null;
         msg.help1();
@@ -485,6 +482,7 @@ class Game {
                 if (coins > 0)
                 {
                     out.println(msg.missWithCoin);
+                    disperseGold(coins);
                     coins = 0;
                     moveMonster();
                     return false;

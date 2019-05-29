@@ -57,7 +57,7 @@ public class Messages {
                 + "\n\"NYAAAAAHHHHH!!! You come and take my STUFF!!!\", it shouts."
                 + "\nYou notice a rolled up parchment in its fist."
                 + "\nIs that...?\n\"Ah, you like this?\" it snarls."
-                + "\n\"You want? Get me 4 gold back!\""
+                + "\n\"You want? Get me " + " gold back!\""
                 + "\nIt points to the nearby wall. At the top,"
                 + "\nyou notice a small opening, barely enough to crawl through."
                 + "\nThe goblin looks threatening though. Should probably go"
@@ -111,7 +111,26 @@ public class Messages {
     
     public void help1() {
         help = "You must retrieve the coins from the sanctum!\n"
-                + "Your commands are:";
+                + "[Type 'coins' to see how many you're carrying.]";
+    }
+    
+    public String goblin(int coinGoal) {
+        return ("\n\nOut of nowhere, a small creature leaps out of the shadows"
+                + "\nand lunges itself towards you, its decrepit claws reaching"
+                + "\nout to strike!\n\"GOLD! MY GOLD!\", it shrieks."
+                + "\nYou instinctively lift up the shield to defend yourself."
+                + "\nThe creature's claws swipe and bang hard on the wood,"
+                + "\nknocking itself back. It howls in pain."
+                + "\n\"NYAAAAAHHHHH!!! You come and take my STUFF!!!\", it shouts."
+                + "\nYou notice a rolled up parchment in its fist."
+                + "\nIs that...?\n\"Ah, you like this?\" it snarls."
+                + "\n\"You want? Get me " + coinGoal + " gold back!\""
+                + "\nIt points to the nearby wall. At the top,"
+                + "\nyou notice a small opening, barely enough to crawl through."
+                + "\nThe goblin looks threatening though. Should probably go"
+                + "\neven just to get away. You hoist yourself up and "
+                + "\nsqueeze through the gap."
+                + "\nJust hope that the filthy creature keeps his promise.");
     }
     
     
