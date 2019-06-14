@@ -29,7 +29,7 @@ public class Messages {
                 + "\n[Type 'help' to see commands]\n");
         help = "You must retrieve the scroll and escape!\nYou may type 1 or 2 "
                 + "words at a time.\n" 
-                + "Your commands are: go, take, back, help, quit";
+                + "Your commands are: look, go, take, back, help, quit";
         //quit = "LOL! git gud noob.";
         
         gotTorch = "The ember of light brightens your way.\n"
