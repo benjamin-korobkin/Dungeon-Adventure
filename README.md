@@ -9,7 +9,7 @@ Grammar:
 [] - denotes mandatory field  
 () - denotes optional field  
 | - denotes binary option ('or')
-"" - denotes literal text  
+"" - denotes literal text    
 __ - denotes word as variable  
 
 (go) "back"|[direction]- Takes you to another room, if available. For example, to go east, type "go east" or simply "east".
