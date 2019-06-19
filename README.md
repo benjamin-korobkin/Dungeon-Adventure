@@ -8,7 +8,7 @@ Commands: go, look, take, back, help, quit
 Grammar:     
 [] - denotes mandatory field  
 () - denotes optional field  
-| - denotes binary option ('or')
+| - denotes binary option ('or')  
 "" - denotes literal text    
 __ - denotes word as variable  
 
