@@ -6,11 +6,10 @@ User inputs are entered as a sequence of 1-2 words.
 Commands: go, look, take, back, help, quit
 
 Grammar:     
-[] - denotes mandatory field  
+[] - denotes mandatory field, shown as variable   
 () - denotes optional field  
 | - denotes binary option ('or')  
 "" - denotes literal text    
-__ - denotes word as variable  
 
 (go) "back"|[direction]- Takes you to another room, if available. For example, to go east, type "go east" or simply "east".
 
