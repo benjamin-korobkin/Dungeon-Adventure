@@ -1,5 +1,7 @@
 # Dungeon-Adventure
-A text-only dungeon adventure game.
+A text-based dungeon adventure game inspired by old school, classic text adventures.  
+
+To play, download the jar file and launch it via terminal (java -jar realZork.jar)
 
 User inputs are entered as a sequence of 1-2 words.
 
