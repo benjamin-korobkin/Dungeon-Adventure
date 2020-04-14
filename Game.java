@@ -320,7 +320,7 @@ class Game {
         if (prevRoom == null) {
         out.println("There's no going back now...");
         }
-        else if ((currentRoom == boulderRoom) && (prevRoom == entrance)) {
+        else if (currentRoom.equals(boulderRoom) && prevRoom.equals(entrance)) {
             out.println("Sorry, you can't go back!");
         }
         else {
